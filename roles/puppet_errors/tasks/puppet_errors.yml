@@ -1,13 +1,19 @@
 ---
 - name: Gathering heat-config outputs
-  find: paths="/var/lib/heat-config/deployed -name '*.notify.json'"
-  register: deployed-heat-config
+  command: "find /var/lib/heat-config/deployed -name '*.notify.json'"
+  register: heat_deployed_output
   become: true
 
+- debug: var=heat_deployed_output.stdout_lines
+
+- debug: var={{ item }}
+  with_items: heat_deployed_output.stdout_lines
+
 - name: Checking for puppet errors
-  command: jq .deploy_status_code {{ items }}
+  command: "jq .deploy_status_code {{ item }}"
   register: result
   failed_when: result.std_out != 0
-  with_items: heat-config-outputs
+  become: true
+  with_items: heat_deployed_output.stdout_lines
 
-- debug: name=result
+- debug: var=result
