@@ -1,0 +1,5 @@
+---
+- hosts: overcloud
+  roles:
+    - { role: puppet_errors,
+        tags: puppet_errors }
